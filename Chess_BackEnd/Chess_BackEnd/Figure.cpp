@@ -1,5 +1,18 @@
 #include "Figure.h"
 
+Figure::Figure(std::string name, std::string start_pos, bool is_white) : board()
+{
+    this->name = name;
+    set_pos(start_pos);
+    setWhite(is_white);
+
+    tran_strPos_to_X_Y();
+}
+
+Figure::~Figure()
+{
+}
+
 bool Figure::isWhite()
 {
     return this->is_white;
@@ -34,4 +47,14 @@ void Figure::setX(int x)
 void Figure::setY(int y)
 {
     this->currPos_Y = y;
+}
+
+int Figure::get_tran_x(std::string dst_pos)
+{
+    return dst_pos[0] - 'a';
+}
+
+int Figure::get_tran_y(std::string dst_pos)
+{
+    return '8' - dst_pos[1];
 }
