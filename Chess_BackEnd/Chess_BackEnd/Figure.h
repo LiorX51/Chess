@@ -26,6 +26,7 @@ public:
 	int get_tran_x(std::string dst_pos);
 	int get_tran_y(std::string dst_pos);
 	virtual bool can_move(std::string dstPoint) = 0;
+	virtual bool does_attack(std::string Point) = 0;
 private:
 	
 };
