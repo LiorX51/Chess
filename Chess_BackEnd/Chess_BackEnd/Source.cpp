@@ -7,6 +7,7 @@ in order to read and write information from and to the Backend
 #include "Pipe.h"
 #include <iostream>
 #include <thread>
+#include "pawn.h"
 
 using std::cout;
 using std::endl;
@@ -44,9 +45,9 @@ void main()
 
 	char msgToGraphics[1024];
 	// msgToGraphics should contain the board string accord the protocol
-	// YOUR CODE
+	Pawn pawn("p", "a7", false);
 
-	strcpy_s(msgToGraphics, "rnbkqbnrpppppppp################################PPPPPPPPRNBKQBNR1"); // just example...
+	strcpy_s(msgToGraphics, "rnbkqbnrppppppppP###############################PPPPPPPPRNBKQBNR1"); // just example...
 	
 	p.sendMessageToGraphics(msgToGraphics);   // send the board string
 
@@ -57,7 +58,15 @@ void main()
 	{
 		// should handle the string the sent from graphics
 		// according the protocol. Ex: e2e4           (move e2 to e4)
-		
+		pawn.board_str = msgToGraphics;
+
+		if (pawn.can_move(msgFromGraphics.substr(2,2)))
+		{
+			std::cout << "nice job";
+		}
+		else
+			std::cout << "bad job";
+
 		// YOUR CODE
 		strcpy_s(msgToGraphics, "YOUR CODE"); // msgToGraphics should contain the result of the operation
 
