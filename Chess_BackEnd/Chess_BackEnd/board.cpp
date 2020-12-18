@@ -35,9 +35,9 @@ void board::set_board_figures()
 	int j = 0;
 	std::string pos = "";
 
-	for (i = 0; (i + j*ROW) < len; i++)
+	for (j = 0; (i + j * ROW) < len; j++)
 	{
-		for (j = 0; j < ROW; j++)
+		for (i = 0; i < ROW; i++)
 		{
 			pos = "";
 			pos.append(1,('a' + i));
@@ -45,17 +45,46 @@ void board::set_board_figures()
 
 			switch (tolower(this->board_str[i + j*ROW]))
 			{
-			case 'p':
-			{
-				// create a new pawn and place it in the write place;
-				this->board_figures[i + j * ROW] = new Pawn("p", pos, !islower(this->board_str[i + j * ROW]));;
-				break;
-			}
-			default:
-				break;
-			}
+				std::cout << pos << std::endl;
+				case 'p':
+				{
+					// create a new pawn and place it in the write place;
+					this->board_figures[i + j * ROW] = new Pawn("p", pos, !islower(this->board_str[i + j * ROW]));
+					break;
+				}
+				default:
+					this->board_figures[i + j * ROW] = nullptr;
+					break;
+				}
 		}
 	}
+}
+
+bool board::is_chess(std::string figure_pos)
+{
+	int index = 0;
+	std::string king_pos = "";
+	int figure_x = Figure::get_tran_x(figure_pos);
+	int figure_y = Figure::get_tran_y(figure_pos);
+	Figure* moved_figure = this->board_figures[figure_x + figure_y * ROW];
+
+	if (moved_figure->isWhite())
+	{// if white need to check chess of black king
+
+		//find black king's pos:
+		index = this->board_str.find(BLACK_KING);
+	}
+	else
+	{// if black need to check chess of white king
+		
+		//find white king's pos:
+		index = this->board_str.find(WHITE_KING);
+	}
+
+	//king of choice pos
+	king_pos = this->board_figures[index]->currPos;
+
+	return moved_figure->does_attack(king_pos); //call the figure's func to check if threats the king
 }
 
 bool board::move_pawn(std::string srcPoint, std::string dstPoint)
@@ -85,7 +114,7 @@ bool board::move_pawn(std::string srcPoint, std::string dstPoint)
 				r_val = true;
 			}
 		}
-		//move the piece if needed
+		//move the piece if needed and delete the eatten piece
 		if (r_val)
 		{
 			delete(this->board_figures[dst_x + dst_y * ROW]);
@@ -128,6 +157,12 @@ bool board::move_pawn(std::string srcPoint, std::string dstPoint)
 					r_val = true;
 				}
 			}
+		}
+		//move the piece if needed
+		if (r_val)
+		{
+			this->board_figures[dst_x + dst_y * ROW] = this->board_figures[src_x + src_y * ROW];
+			this->board_figures[src_x + src_y * ROW] = nullptr;
 		}
 	}
 	return r_val;
