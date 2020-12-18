@@ -7,7 +7,7 @@ in order to read and write information from and to the Backend
 #include "Pipe.h"
 #include <iostream>
 #include <thread>
-#include "pawn.h"
+#include "board.h"
 
 using std::cout;
 using std::endl;
@@ -45,27 +45,45 @@ void main()
 
 	char msgToGraphics[1024];
 	// msgToGraphics should contain the board string accord the protocol
-	Pawn pawn("p", "a7", false);
-
-	strcpy_s(msgToGraphics, "rnbkqbnrppppppppP###############################PPPPPPPPRNBKQBNR1"); // just example...
+	board* board1 = new board();
 	
+	strcpy_s(msgToGraphics, "rnbkqbnrpppppppp########K#######################PPPPPPPPRNB#QBNR1"); // just example...
+	
+	board1->board_str = msgToGraphics;
+
 	p.sendMessageToGraphics(msgToGraphics);   // send the board string
 
 	// get message from graphics
 	string msgFromGraphics = p.getMessageFromGraphics();
 
+	board1->board_str = msgToGraphics;
+	board1->set_board_figures();
+
 	while (msgFromGraphics != "quit")
 	{
 		// should handle the string the sent from graphics
 		// according the protocol. Ex: e2e4           (move e2 to e4)
-		pawn.board_str = msgToGraphics;
-
-		if (pawn.can_move(msgFromGraphics.substr(2,2)))
+		
+		if (board1->move_figure(msgFromGraphics.substr(0,2), msgFromGraphics.substr(2, 2)))
 		{
-			std::cout << "nice job";
+			std::cout << "nice job" << std::endl;
+
+			if (board1->is_chess(msgFromGraphics.substr(2, 2)))
+			{
+				std::cout << "nice chess" << std::endl;
+			}
+			else
+			{
+				std::cout << "bad chess" << std::endl;
+			}
 		}
 		else
-			std::cout << "bad job";
+		{
+			std::cout << "bad job" << std::endl;
+		}
+
+		
+
 
 		// YOUR CODE
 		strcpy_s(msgToGraphics, "YOUR CODE"); // msgToGraphics should contain the result of the operation

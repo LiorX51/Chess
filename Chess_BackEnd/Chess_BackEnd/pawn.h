@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PAWN_H
+#define PAWN_H
 
 #include "Figure.h"
 
@@ -15,4 +16,4 @@ class Pawn : public Figure
 
 		bool does_attack(std::string Point);
 };
-
+#endif
