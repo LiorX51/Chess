@@ -1,9 +1,10 @@
 #ifndef FIGURE_H
 #define FIGURE_H
 
-#include "board.h"
+#include <string>
+#include <iostream>
 
-class Figure : public board
+class Figure
 {
 
 public:
@@ -23,9 +24,8 @@ public:
 	void tran_strPos_to_X_Y();
 	void setX(int x);
 	void setY(int y);
-	int get_tran_x(std::string dst_pos);
-	int get_tran_y(std::string dst_pos);
-	virtual bool can_move(std::string dstPoint) = 0;
+	static int get_tran_x(std::string dst_pos);
+	static int get_tran_y(std::string dst_pos);
 	virtual bool does_attack(std::string Point) = 0;
 private:
 	

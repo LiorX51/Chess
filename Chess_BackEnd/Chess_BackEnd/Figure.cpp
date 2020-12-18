@@ -1,6 +1,6 @@
 #include "Figure.h"
 
-Figure::Figure(std::string name, std::string start_pos, bool is_white) : board()
+Figure::Figure(std::string name, std::string start_pos, bool is_white)
 {
     this->name = name;
     set_pos(start_pos);
