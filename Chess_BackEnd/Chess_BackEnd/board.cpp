@@ -72,6 +72,12 @@ void board::set_board_figures()
 					this->board_figures[i + j * ROW] = new Bishop(name, pos, !islower(this->board_str[i + j * ROW]));
 					break;
 				}
+				case 'n':
+				{
+					// create a new pawn and place it in the write place;
+					this->board_figures[i + j * ROW] = new Knight(name, pos, !islower(this->board_str[i + j * ROW]));
+					break;
+				}
 				default:
 				{
 					this->board_figures[i + j * ROW] = nullptr;
@@ -142,6 +148,11 @@ bool board::move_figure(std::string srcPoint, std::string dstPoint)
 			case 'b':
 			{// a bishop
 				r_val = move_bishop(srcPoint, dstPoint);
+				break;
+			}
+			case 'n':
+			{// a bishop
+				r_val = move_knight(srcPoint, dstPoint);
 				break;
 			}
 			default:
@@ -464,5 +475,48 @@ bool board::move_bishop(std::string srcPoint, std::string dstPoint)
 		this->board_str[src_x + src_y * ROW] = this->board_str[dst_x + dst_y * ROW];
 		this->board_str[dst_x + dst_y * ROW] = temp;
 	}
+	return r_val;
+}
+
+bool board::move_knight(std::string srcPoint, std::string dstPoint)
+{
+	int src_x = Figure::get_tran_x(srcPoint);
+	int src_y = Figure::get_tran_y(srcPoint);
+	Figure& curr = *this->board_figures[src_x + src_y * ROW];
+	bool r_val = true;
+	int dst_x = Figure::get_tran_x(dstPoint);
+	int dst_y = Figure::get_tran_y(dstPoint);
+	char temp = 'a';
+
+	if ((abs(src_x - dst_x) == TWO_STEPS && abs(src_y - dst_y) == STEP) || (abs(src_x - dst_x) == STEP && abs(src_y - dst_y) == TWO_STEPS))
+	{
+
+		if (curr.isWhite() && islower(this->board_str[dst_x + dst_y * ROW]) ||
+			(!curr.isWhite() && !islower(this->board_str[dst_x + dst_y * ROW])))
+		{//if white and dstPoint has black figure or the opposite
+			//delete the eatten piece
+			delete(this->board_figures[dst_x + dst_y * ROW]);
+		}
+
+		//move the figure
+		this->board_figures[dst_x + dst_y * ROW] = this->board_figures[src_x + src_y * ROW];
+		this->board_figures[src_x + src_y * ROW] = nullptr;
+
+		this->board_figures[dst_x + dst_y * ROW]->setX(dst_x);
+		this->board_figures[dst_x + dst_y * ROW]->setY(dst_y);
+		this->board_figures[dst_x + dst_y * ROW]->set_pos(dstPoint);
+
+		// change the string of the board
+		temp = this->board_str[src_x + src_y * ROW];
+		this->board_str[src_x + src_y * ROW] = this->board_str[dst_x + dst_y * ROW];
+		this->board_str[dst_x + dst_y * ROW] = temp;
+
+		r_val = true;
+	}
+	else
+	{
+		r_val = false;
+	}
+
 	return r_val;
 }

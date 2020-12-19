@@ -10,6 +10,7 @@
 #include "King.h"
 #include "Rook.h"
 #include "Bishop.h"
+#include "Knight.h"
 
 #define BLACK_KING 'k'
 #define WHITE_KING 'K'
@@ -37,6 +38,7 @@ class board
 		bool move_king(std::string srcPoint, std::string dstPoint);
 		bool move_rook(std::string srcPoint, std::string dstPoint);
 		bool move_bishop(std::string srcPoint, std::string dstPoint);
+		bool move_knight(std::string srcPoint, std::string dstPoint);
 };
 
 #endif // !BOARD_H
