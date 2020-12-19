@@ -56,26 +56,32 @@ void board::set_board_figures()
 				}
 				case 'k':
 				{
-					// create a new pawn and place it in the write place;
+					// create a new king and place it in the write place;
 					this->board_figures[i + j * ROW] = new King(name, pos, !islower(this->board_str[i + j * ROW]));
 					break;
 				}
 				case 'r':
 				{
-					// create a new pawn and place it in the write place;
+					// create a new rook and place it in the write place;
 					this->board_figures[i + j * ROW] = new Rook(name, pos, !islower(this->board_str[i + j * ROW]));
 					break;
 				}
 				case 'b':
 				{
-					// create a new pawn and place it in the write place;
+					// create a new bishop and place it in the write place;
 					this->board_figures[i + j * ROW] = new Bishop(name, pos, !islower(this->board_str[i + j * ROW]));
 					break;
 				}
 				case 'n':
 				{
-					// create a new pawn and place it in the write place;
+					// create a new knight and place it in the write place;
 					this->board_figures[i + j * ROW] = new Knight(name, pos, !islower(this->board_str[i + j * ROW]));
+					break;
+				}
+				case 'q':
+				{
+					// create a new queen and place it in the write place;
+					this->board_figures[i + j * ROW] = new Queen(name, pos, !islower(this->board_str[i + j * ROW]));
 					break;
 				}
 				default:
@@ -151,8 +157,13 @@ bool board::move_figure(std::string srcPoint, std::string dstPoint)
 				break;
 			}
 			case 'n':
-			{// a bishop
+			{// a knight
 				r_val = move_knight(srcPoint, dstPoint);
+				break;
+			}
+			case 'q':
+			{// a queen
+				r_val = move_queen(srcPoint, dstPoint);
 				break;
 			}
 			default:
@@ -519,4 +530,84 @@ bool board::move_knight(std::string srcPoint, std::string dstPoint)
 	}
 
 	return r_val;
+}
+
+bool board::move_queen(std::string srcPoint, std::string dstPoint)
+{
+	int src_x = Figure::get_tran_x(srcPoint);
+	int src_y = Figure::get_tran_y(srcPoint);
+	Figure& curr = *this->board_figures[src_x + src_y * ROW];
+	bool r_val = false;
+	int dst_x = Figure::get_tran_x(dstPoint);
+	int dst_y = Figure::get_tran_y(dstPoint);
+	char temp = 'a';
+	int yIncrement = 0;
+	int xIncrement = 0;
+
+	if (src_x != dst_x || src_y != dst_y)
+	{
+
+		if (src_x == dst_x)
+		{
+			yIncrement = (dst_y - src_y) / (abs(dst_y - src_y));
+			for (int i = src_y + yIncrement; i != dst_y; i += yIncrement)
+			{
+
+				if (this->board_str[dst_x + i * ROW] != EMPTY)
+					return false;
+
+			}
+		}
+		else
+			if (src_y == dst_y)
+			{
+
+				xIncrement = (dst_x - src_x) / (abs(dst_x - src_x));
+				for (int i = src_y + xIncrement; i != dst_x; i += xIncrement)
+				{
+					if (this->board_str[i + dst_y * ROW] != EMPTY)
+						return false;
+				}
+			}
+			else
+				if (abs(src_x - dst_x) == abs(src_y - dst_y))
+				{
+					xIncrement = (dst_x - src_x) / (abs(dst_x - src_y));
+					yIncrement = (dst_y - src_y) / (abs(dst_y - src_y));
+
+					for (int i = 1; i < abs(src_y - dst_x); i++)
+					{
+						if (this->board_str[src_x + xIncrement * i + dst_y * yIncrement * ROW] != EMPTY)
+							return false;
+					}
+				}
+				else
+					return false;
+	}
+
+
+
+	// set variables of pos to new point
+	if (!r_val)
+	{
+		if (curr.isWhite() && islower(this->board_str[dst_x + dst_y * ROW]) ||
+			(!curr.isWhite() && !islower(this->board_str[dst_x + dst_y * ROW])))
+		{//if white and dstPoint has black figure or the opposite
+			//delete the eatten piece
+			delete(this->board_figures[dst_x + dst_y * ROW]);
+		}
+		//move the figure
+		this->board_figures[dst_x + dst_y * ROW] = this->board_figures[src_x + src_y * ROW];
+		this->board_figures[src_x + src_y * ROW] = nullptr;
+
+		//set new coordinates
+		this->board_figures[dst_x + dst_y * ROW]->setX(dst_x);
+		this->board_figures[dst_x + dst_y * ROW]->setY(dst_y);
+		this->board_figures[dst_x + dst_y * ROW]->set_pos(dstPoint);
+
+		// change the string of the board
+		temp = this->board_str[src_x + src_y * ROW];
+		this->board_str[src_x + src_y * ROW] = this->board_str[dst_x + dst_y * ROW];
+		this->board_str[dst_x + dst_y * ROW] = temp;
+	}
 }
