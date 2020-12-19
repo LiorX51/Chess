@@ -47,7 +47,7 @@ void main()
 	// msgToGraphics should contain the board string accord the protocol
 	board* board1 = new board();
 	
-	strcpy_s(msgToGraphics, "rnbkqbnrpppppppp########K#######################PPPPPPPPRNB#QBNR1"); // just example...
+	strcpy_s(msgToGraphics, "rnbkqbnrpppppppp########R#####################p#PPPPPPPPRNBKQBNR1"); // just example...
 	
 	board1->board_str = msgToGraphics;
 
@@ -66,19 +66,23 @@ void main()
 		
 		if (board1->move_figure(msgFromGraphics.substr(0,2), msgFromGraphics.substr(2, 2)))
 		{
+			strcpy_s(msgToGraphics, "0");
 			std::cout << "nice job" << std::endl;
 
 			if (board1->is_chess(msgFromGraphics.substr(2, 2)))
 			{
+				strcpy_s(msgToGraphics, "1");
 				std::cout << "nice chess" << std::endl;
 			}
 			else
 			{
+				//strcpy_s(msgToGraphics, "6");
 				std::cout << "bad chess" << std::endl;
 			}
 		}
 		else
 		{
+			strcpy_s(msgToGraphics, "6");
 			std::cout << "bad job" << std::endl;
 		}
 
@@ -86,12 +90,12 @@ void main()
 
 
 		// YOUR CODE
-		strcpy_s(msgToGraphics, "YOUR CODE"); // msgToGraphics should contain the result of the operation
+		//strcpy_s(msgToGraphics, "YOUR CODE"); // msgToGraphics should contain the result of the operation
 
 		/******* JUST FOR EREZ DEBUGGING ******/
-		int r = rand() % 10; // just for debugging......
-		msgToGraphics[0] = (char)(1 + '0');
-		msgToGraphics[1] = 0;
+		//int r = rand() % 10; // just for debugging......
+		//msgToGraphics[0] = (char)(1 + '0');
+		//msgToGraphics[1] = 0;
 		/******* JUST FOR EREZ DEBUGGING ******/
 
 
