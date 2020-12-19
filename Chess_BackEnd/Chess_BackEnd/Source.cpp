@@ -47,7 +47,7 @@ void main()
 	// msgToGraphics should contain the board string accord the protocol
 	board* board1 = new board();
 	
-	strcpy_s(msgToGraphics, "rnbkqbnrpppppppp########R#####################p#PPPPPPPPRNBKQBNR1"); // just example...
+	strcpy_s(msgToGraphics, "rnbkqbnrpppppppp########Q#######################PPPPPPPPRNBKQBNR1"); // just example...
 	
 	board1->board_str = msgToGraphics;
 
