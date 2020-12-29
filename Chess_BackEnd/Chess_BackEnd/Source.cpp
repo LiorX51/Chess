@@ -47,7 +47,7 @@ void main()
 	// msgToGraphics should contain the board string accord the protocol
 	board* board1 = new board();
 	
-	strcpy_s(msgToGraphics, "rnbkqbnrpppppppp########Q#######################PPPPPPPPRNBKQBNR1"); // just example...
+	strcpy_s(msgToGraphics, "rnbkqbnrpppppppp################################PPPPPPPPRNBKQBNR1"); // just example...
 	
 	board1->board_str = msgToGraphics;
 
@@ -63,29 +63,12 @@ void main()
 	{
 		// should handle the string the sent from graphics
 		// according the protocol. Ex: e2e4           (move e2 to e4)
-		
+
 		if (board1->move_figure(msgFromGraphics.substr(0,2), msgFromGraphics.substr(2, 2)))
 		{
-			strcpy_s(msgToGraphics, "0");
-			std::cout << "nice job" << std::endl;
-
-			if (board1->is_chess(msgFromGraphics.substr(2, 2)))
-			{
-				strcpy_s(msgToGraphics, "1");
-				std::cout << "nice chess" << std::endl;
-			}
-			else
-			{
-				//strcpy_s(msgToGraphics, "6");
-				std::cout << "bad chess" << std::endl;
-			}
+			board1->is_turn_white = !board1->is_turn_white; // if move was good so switch color
 		}
-		else
-		{
-			strcpy_s(msgToGraphics, "6");
-			std::cout << "bad job" << std::endl;
-		}
-
+		
 		
 
 
@@ -99,8 +82,9 @@ void main()
 		/******* JUST FOR EREZ DEBUGGING ******/
 
 
-		// return result to graphics		
-		p.sendMessageToGraphics(msgToGraphics);   
+		// return result to graphics
+		strcpy_s(msgToGraphics, board1->curr_msg_to_graphics.c_str());
+		p.sendMessageToGraphics(msgToGraphics);
 
 		// get message from graphics
 		msgFromGraphics = p.getMessageFromGraphics();

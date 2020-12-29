@@ -9,6 +9,7 @@ board::board()
 	{
 		board_figures[i] = nullptr;
 	}
+	is_turn_white = true;
 }
 
 board::~board()
@@ -23,6 +24,35 @@ board::~board()
 	delete[] board_figures;
 }
 
+void board::switch_positions(std::string srcPoint, std::string dstPoint)
+{
+	int src_x = Figure::get_tran_x(srcPoint);
+	int src_y = Figure::get_tran_y(srcPoint);
+	int dst_x = Figure::get_tran_x(dstPoint);
+	int dst_y = Figure::get_tran_y(dstPoint);
+	char temp = 'a';
+	
+    //move the figure
+	if (this->board_figures[dst_x + dst_y * ROW] != nullptr)
+	{
+		delete(this->board_figures[dst_x + dst_y * ROW]);
+		this->board_str[dst_x + dst_y * ROW] = EMPTY;
+	}
+
+	this->board_figures[dst_x + dst_y * ROW] = this->board_figures[src_x + src_y * ROW];
+	this->board_figures[src_x + src_y * ROW] = nullptr;
+
+	// set new params
+	this->board_figures[dst_x + dst_y * ROW]->setX(dst_x);
+	this->board_figures[dst_x + dst_y * ROW]->setY(dst_y);
+	this->board_figures[dst_x + dst_y * ROW]->set_pos(dstPoint);
+
+	// change the string of the board
+	temp = this->board_str[src_x + src_y * ROW];
+	this->board_str[src_x + src_y * ROW] = this->board_str[dst_x + dst_y * ROW];
+	this->board_str[dst_x + dst_y * ROW] = temp;
+}
+
 std::string board::get_board()
 {
     return this->board_str;
@@ -30,13 +60,11 @@ std::string board::get_board()
 
 void board::set_board_figures()
 {
-    //int len = this->board_str.length() - UNIMPORTANT_CHARS;
 	int i = 0;
 	int j = 0;
 	std::string pos = "";
 	std::string name = "";
 
-	//for (j = 0; (i + j * ROW) < len; j++)
 	for (j = 0; j < ROW; j++)
 	{
 		for (i = 0; i < ROW; i++)
@@ -94,31 +122,132 @@ void board::set_board_figures()
 	}
 }
 
+void board::set_board_str()
+{
+	int i = 0;
+	int j = 0;
+	Figure* curr_figure = nullptr;
+	for (j = 0; j < ROW; j++)
+	{
+		for (i = 0; i < ROW; i++)
+		{
+			curr_figure = this->board_figures[i + j * ROW];
+			if (curr_figure != nullptr)
+			{
+				curr_figure->board_str = get_board();
+			}
+		}
+	}
+}
+
 bool board::is_chess(std::string figure_pos)
 {
-	int index = 0;
-	std::string king_pos = "";
+	int black_index = 0;
+	int white_index = 0;
+	std::string white_king_pos = "";
+	std::string black_king_pos = "";
+	std::string curr_pos = "";
 	int figure_x = Figure::get_tran_x(figure_pos);
 	int figure_y = Figure::get_tran_y(figure_pos);
-	Figure* moved_figure = this->board_figures[figure_x + figure_y * ROW];
+	Figure* curr_figure = this->board_figures[figure_x + figure_y * ROW];
+	int i = 0;
+	int j = 0;
+	bool is_chess = false;
 
-	if (moved_figure->isWhite())
-	{// if white need to check chess of black king
-
-		//find black king's pos:
-		index = this->board_str.find(BLACK_KING);
-	}
-	else
-	{// if black need to check chess of white king
+	//find black king's pos:
+	black_index = this->board_str.find(BLACK_KING);
 		
-		//find white king's pos:
-		index = this->board_str.find(WHITE_KING);
+	//find white king's pos:
+	white_index = this->board_str.find(WHITE_KING);
+
+	//black king pos
+	black_king_pos = this->board_figures[black_index]->currPos;
+
+	//white king pos
+	white_king_pos = this->board_figures[white_index]->currPos;
+	
+	// if figure is white
+	if (curr_figure->isWhite())
+	{	
+		// need to check if moved figure blocks the possible chess of the other user
+		for (j = 0; j < ROW; j++)
+		{
+			for (i = 0; i < ROW; i++)
+			{
+				curr_figure = this->board_figures[i + j * ROW];
+
+				// if figures are not the same color and does attack the king:
+				if (curr_figure != nullptr && // if figure not null
+					curr_figure->isWhite() != this->board_figures[white_index]->isWhite() && // if are not the same color
+					curr_figure->does_attack(white_king_pos)) // // if can move to king pos -> attacks the king
+				{// there is a chess, return false
+					is_chess = true;
+					this->curr_msg_to_graphics = '4'; // move made doesn't block chess from other player
+					return is_chess;
+				}
+			}
+		}
+
+		//check if moved figure made chess
+		for (j = 0; j < ROW; j++)
+		{
+			for (i = 0; i < ROW; i++)
+			{
+				curr_figure = this->board_figures[i + j * ROW];
+
+				// if figures are not the same color and does attack the king:
+				if (curr_figure != nullptr && // if figure not null
+					curr_figure->isWhite() != this->board_figures[black_index]->isWhite() && // if are not the same color
+					curr_figure->does_attack(black_king_pos)) // if attacks the king
+				{// there is a chess, return false
+					is_chess = true;
+					this->curr_msg_to_graphics = '1'; // move made chess on other player
+					return is_chess;
+				}
+			}
+		}
 	}
+	else // if figure is black
+	{
+		// need to check if moved figure blocks the possible chess of the other user
+		for (j = 0; j < ROW; j++)
+		{
+			for (i = 0; i < ROW; i++)
+			{
+				curr_figure = this->board_figures[i + j * ROW];
 
-	//king of choice pos
-	king_pos = this->board_figures[index]->currPos;
+				// if figures are not the same color and does attack the king:
+				if (curr_figure != nullptr && // if figure not null
+					curr_figure->isWhite() != this->board_figures[black_index]->isWhite() && // if are not the same color
+					curr_figure->does_attack(black_king_pos)) // // if can move to king pos -> attacks the king
+				{// there is a chess, return false
+					is_chess = true;
+					this->curr_msg_to_graphics = '4'; // move made doesn't block chess from other player
+					return is_chess;
+				}
+			}
+		}
 
-	return moved_figure->does_attack(king_pos); //call the figure's func to check if threats the king
+		//check if moved figure made chess
+		for (j = 0; j < ROW; j++)
+		{
+			for (i = 0; i < ROW; i++)
+			{
+				curr_figure = this->board_figures[i + j * ROW];
+
+				// if figures are not the same color and does attack the king:
+				if (curr_figure != nullptr && // if figure not null
+					curr_figure->isWhite() != this->board_figures[white_index]->isWhite() && // if are not the same color
+					curr_figure->does_attack(white_king_pos)) // if attacks the king
+				{// there is a chess, return false
+					is_chess = true;
+					this->curr_msg_to_graphics = '1'; // move made chess on other player
+					return is_chess;
+				}
+			}
+		}
+	}
+	return is_chess;
 }
 
 bool board::move_figure(std::string srcPoint, std::string dstPoint)
@@ -128,6 +257,26 @@ bool board::move_figure(std::string srcPoint, std::string dstPoint)
 	int dst_x = Figure::get_tran_x(dstPoint);
 	int dst_y = Figure::get_tran_y(dstPoint);
 	bool r_val = false;
+	
+	if (!islower(this->board_str[src_x + src_y * ROW]) != this->is_turn_white) // if the same color -> low letter is black color
+	{
+		this->curr_msg_to_graphics = '2'; // not your figure
+		return false;
+	}
+
+	//if points are the same
+	if (srcPoint == dstPoint)
+	{
+		this->curr_msg_to_graphics = '7'; // srcPoint and dstPoint are the same
+		return false;
+	}
+
+	// if there is no figure
+	if (this->board_str[src_x + src_y * ROW] == EMPTY)
+	{
+		this->curr_msg_to_graphics = '2'; // no figure in this pos
+		return false;
+	}
 
 	// if the dst and src are not the same color
 	if (this->board_str[dst_x + dst_y * ROW] == EMPTY ||
@@ -172,6 +321,24 @@ bool board::move_figure(std::string srcPoint, std::string dstPoint)
 			}
 		}
 	}
+	else
+	{
+		this->curr_msg_to_graphics = '3'; // both figures dst and src are from the same player
+		return false;
+	}
+	if (r_val)
+	{
+		this->set_board_str(); // update the board
+		is_chess(dstPoint); // check if move makes or blocks chess
+		
+		std::string temp = "4";
+		if (this->curr_msg_to_graphics.compare(temp) == 0)
+		{// if move caused chess to the same player
+			r_val = false;
+			switch_positions(dstPoint, srcPoint); // return the figure to its old place
+		}
+	}
+
 	return r_val;
 }
 
@@ -185,81 +352,92 @@ bool board::move_pawn(std::string srcPoint, std::string dstPoint)
 	int dst_y = Figure::get_tran_y(dstPoint);
 	char temp = 'a';
 
-	if (this->board_str[dst_x + dst_y * ROW] != EMPTY)
-	{// need to check if can eat what is in dstPoint
-		if (curr.isWhite() && islower(this->board_str[dst_x + dst_y * ROW]))
-		{//if white and dstPoint has black figure
-			if ((curr.currPos_Y - dst_y == STEP) &&
-				(dst_x - curr.currPos_X == STEP || curr.currPos_X - dst_x == STEP))
-			{//if the pawn moves one step forword and left or right(1 step in diagonal)
-				r_val = true;
-			}
-		}
-		else if (!curr.isWhite() && !islower(this->board_str[dst_x + dst_y * ROW]))
-		{// if black && eats white figure
-			if ((dst_y - curr.currPos_Y == STEP) &&
-				(dst_x - curr.currPos_X == STEP || curr.currPos_X - dst_x == STEP))
-			{//if the pawn moves one step forword and left or right(1 step in diagonal)
-				r_val = true;
-			}
-		}
-		//move the piece if needed and delete the eatten piece
-		if (r_val)
-		{
-			delete(this->board_figures[dst_x + dst_y * ROW]);
-			this->board_figures[dst_x + dst_y * ROW] = this->board_figures[src_x + src_y * ROW];
-			this->board_figures[src_x + src_y * ROW] = nullptr;
-
-			this->board_str[dst_x + dst_y * ROW] = EMPTY;
-		}
-	}
-	else
-	{// need to check if pawn can move to empty place
-		if ((curr.currPos_Y == START_LINE_BLACK || curr.currPos_Y == START_LINE_WHITE) && curr.currPos_X == dst_x)
-		{// if the pawn is in start line he can move 2 steps
-			if (curr.isWhite())
-			{//if white
-				if ((curr.currPos_Y - dst_y == TWO_STEPS) || (curr.currPos_Y - dst_y == STEP))
-				{//if the action is one or two steps
+	//if there is a figure in the srcPoint
+	if (this->board_figures[src_x + src_y * ROW] != nullptr)
+	{
+		if (this->board_str[dst_x + dst_y * ROW] != EMPTY)
+		{// need to check if can eat what is in dstPoint
+			if (curr.isWhite() && islower(this->board_str[dst_x + dst_y * ROW]))
+			{//if white and dstPoint has black figure
+				if ((curr.currPos_Y - dst_y == STEP) &&
+					(dst_x - curr.currPos_X == STEP || curr.currPos_X - dst_x == STEP))
+				{//if the pawn moves one step forword and left or right(1 step in diagonal)
 					r_val = true;
 				}
 			}
-			else
-			{// if black
-				if ((dst_y - curr.currPos_Y == TWO_STEPS) || (dst_y - curr.currPos_Y == STEP))
-				{//if the action is one or two steps
-					r_val = true;
-				}
-			}
-		}
-		else
-		{// the pawn can move 1 step
-			if (curr.isWhite())
-			{//if white
-				if (curr.currPos_Y - dst_y == STEP)
-				{//if the action is one step
+			else if (!curr.isWhite() && !islower(this->board_str[dst_x + dst_y * ROW]))
+			{// if black && eats white figure
+				if ((dst_y - curr.currPos_Y == STEP) &&
+					(dst_x - curr.currPos_X == STEP || curr.currPos_X - dst_x == STEP))
+				{//if the pawn moves one step forword and left or right(1 step in diagonal)
 					r_val = true;
 				}
 			}
 			else
 			{
-				if (dst_y - curr.currPos_Y == STEP)
-				{//if the action is one step
-					r_val = true;
+				this->curr_msg_to_graphics = '3'; // dstPoint and srcPoint figures with the same color
+				return false;
+			}
+			//move the piece if needed and delete the eatten piece
+			if (r_val)
+			{
+				delete(this->board_figures[dst_x + dst_y * ROW]);
+				this->board_str[dst_x + dst_y * ROW] = EMPTY;
+			}
+		}
+		else if(curr.currPos_X == dst_x)
+		{// need to check if pawn can move to empty place
+			if ((curr.currPos_Y == START_LINE_BLACK || curr.currPos_Y == START_LINE_WHITE))
+			{// if the pawn is in start line he can move 2 steps
+				if (curr.isWhite())
+				{//if white
+					if ((curr.currPos_Y - dst_y == TWO_STEPS) || (curr.currPos_Y - dst_y == STEP))
+					{//if the action is one or two steps
+						r_val = true;
+					}
+				}
+				else
+				{// if black
+					if ((dst_y - curr.currPos_Y == TWO_STEPS) || (dst_y - curr.currPos_Y == STEP))
+					{//if the action is one or two steps
+						r_val = true;
+					}
+				}
+			}
+			else
+			{// the pawn can move 1 step
+				if (curr.isWhite())
+				{//if white
+					if (curr.currPos_Y - dst_y == STEP)
+					{//if the action is one step
+						r_val = true;
+					}
+				}
+				else
+				{
+					if (dst_y - curr.currPos_Y == STEP)
+					{//if the action is one step
+						r_val = true;
+					}
 				}
 			}
 		}
-		//move the piece if needed
-		if (r_val)
-		{
-			this->board_figures[dst_x + dst_y * ROW] = this->board_figures[src_x + src_y * ROW];
-			this->board_figures[src_x + src_y * ROW] = nullptr;
-		}
+	}
+	else
+	{
+		this->curr_msg_to_graphics = '2'; // srcPoint doesn't have a figure
+		return false;
 	}
 
 	// set variables of pos to new point
 	if (r_val)
 	{
+		this->curr_msg_to_graphics = '0'; // valid move was made
+		//move the figure
+		this->board_figures[dst_x + dst_y * ROW] = this->board_figures[src_x + src_y * ROW];
+		this->board_figures[src_x + src_y * ROW] = nullptr;
+
+		// set new params
 		this->board_figures[dst_x + dst_y * ROW]->setX(dst_x);
 		this->board_figures[dst_x + dst_y * ROW]->setY(dst_y);
 		this->board_figures[dst_x + dst_y * ROW]->set_pos(dstPoint);
@@ -268,6 +446,10 @@ bool board::move_pawn(std::string srcPoint, std::string dstPoint)
 		temp = this->board_str[src_x + src_y * ROW];
 		this->board_str[src_x + src_y * ROW] = this->board_str[dst_x + dst_y * ROW];
 		this->board_str[dst_x + dst_y * ROW] = temp;
+	}
+	else
+	{
+		this->curr_msg_to_graphics = '6'; // invalid move was made
 	}
 
 	return r_val;
@@ -291,6 +473,9 @@ bool board::move_king(std::string srcPoint, std::string dstPoint)
 	// set kings place to new pos to check
 	curr.setX(dst_x);
 	curr.setY(dst_y);
+	temp = this->board_str[src_x + src_y * ROW];
+	this->board_str[src_x + src_y * ROW] = this->board_str[dst_x + dst_y * ROW];
+	this->board_str[dst_x + dst_y * ROW] = temp;
 
 	for (j = 0; j < ROW; j++)
 	{
@@ -303,6 +488,7 @@ bool board::move_king(std::string srcPoint, std::string dstPoint)
 				this->board_figures[i + j * ROW] != this->board_figures[dst_x + dst_y * ROW] &&  // if not the same figure
 				this->board_figures[i + j * ROW]->does_attack(dstPoint)) // if figure attacks
 			{
+				this->curr_msg_to_graphics = '4'; // the move will couse the user to get chess
 				return false;
 			}
 		}
@@ -311,26 +497,28 @@ bool board::move_king(std::string srcPoint, std::string dstPoint)
 	// set kings place to old pos to check the rest of the conditions
 	curr.setX(src_x);
 	curr.setY(src_y);
+	temp = this->board_str[src_x + src_y * ROW];
+	this->board_str[src_x + src_y * ROW] = this->board_str[dst_x + dst_y * ROW];
+	this->board_str[dst_x + dst_y * ROW] = temp;
 
 	if (this->board_str[dst_x + dst_y * ROW] != EMPTY)
 	{// need to check if can eat what is in dstPoint
 		if (curr.isWhite() && islower(this->board_str[dst_x + dst_y * ROW]) ||
 			!curr.isWhite() && !islower(this->board_str[dst_x + dst_y * ROW]))
 		{//if white and dstPoint has black figure or if black && eats white figure
-			if ((dst_y - curr.currPos_Y == STEP || curr.currPos_Y - dst_y == STEP) ||
-				(dst_x - curr.currPos_X == STEP || curr.currPos_X - dst_x == STEP))
+			if (abs(dst_x - src_x) <= STEP && (abs(dst_y - src_y) <= STEP))
 			{//if the king moves one step forword or backwards or left or right
 				r_val = true;
 
 				//delete the eaten piece
 				delete(this->board_figures[dst_x + dst_y * ROW]);
+				this->board_str[dst_x + dst_y * ROW] = EMPTY;
 			}
 		}
 	}
 	else
 	{// need to check if king can move to empty place
-		if ((dst_y - curr.currPos_Y == STEP || curr.currPos_Y - dst_y == STEP) ||
-			(dst_x - curr.currPos_X == STEP || curr.currPos_X - dst_x == STEP))
+		if (abs(dst_x - src_x) <= STEP && (abs(dst_y - src_y) <= STEP))
 		{//if the king moves one step forword or backwards and left or right(1 step in diagonal)
 			r_val = true;
 		}
@@ -339,6 +527,8 @@ bool board::move_king(std::string srcPoint, std::string dstPoint)
 	// set variables of pos to new point
 	if (r_val)
 	{
+		this->curr_msg_to_graphics = '0'; // valid move
+
 		//move the figure
 		this->board_figures[dst_x + dst_y * ROW] = this->board_figures[src_x + src_y * ROW];
 		this->board_figures[src_x + src_y * ROW] = nullptr;
@@ -351,6 +541,10 @@ bool board::move_king(std::string srcPoint, std::string dstPoint)
 		temp = this->board_str[src_x + src_y * ROW];
 		this->board_str[src_x + src_y * ROW] = this->board_str[dst_x + dst_y * ROW];
 		this->board_str[dst_x + dst_y * ROW] = temp;
+	}
+	else
+	{
+		this->curr_msg_to_graphics = '6'; // ivalid move was made
 	}
 
 	return r_val;
@@ -380,6 +574,7 @@ bool board::move_rook(std::string srcPoint, std::string dstPoint)
 				if (this->board_str[curr.currPos_X + i*ROW] != EMPTY)
 				{//found piece in the middle of the way
 					return false;
+					this->curr_msg_to_graphics = '6'; // ivalid move was made
 				}
 
 			}
@@ -393,9 +588,15 @@ bool board::move_rook(std::string srcPoint, std::string dstPoint)
 				if (this->board_str[i + curr.currPos_Y * ROW] != EMPTY)
 				{//found piece in the middle of the way
 					return false;
+					this->curr_msg_to_graphics = '6'; // ivalid move was made
 				}
 
 			}
+		}
+		else
+		{
+			this->curr_msg_to_graphics = '6'; // ivalid move was made
+			r_val = false;
 		}
 
 		if (this->board_str[dst_x + dst_y * ROW] != EMPTY)
@@ -405,17 +606,25 @@ bool board::move_rook(std::string srcPoint, std::string dstPoint)
 			{//if white and dstPoint has black figure or the opposite
 		//move the piece and delete the eatten piece
 				delete(this->board_figures[dst_x + dst_y * ROW]);
+				this->board_str[dst_x + dst_y * ROW] = EMPTY;
 			}
 			else
 			{
+				this->curr_msg_to_graphics = '3'; // src and dst figures are with the same color
 				r_val = false;
 			}
 		}
+	}
+	else
+	{
+		this->curr_msg_to_graphics = '6'; // ivalid move was made
+		return false;
 	}
 
 	// set variables of pos to new point
 	if (r_val)
 	{
+		this->curr_msg_to_graphics = '0'; // valid move was made
 		//move the figure
 		this->board_figures[dst_x + dst_y * ROW] = this->board_figures[src_x + src_y * ROW];
 		this->board_figures[src_x + src_y * ROW] = nullptr;
@@ -453,6 +662,7 @@ bool board::move_bishop(std::string srcPoint, std::string dstPoint)
 		{
 			if (this->board_str[(curr.currPos_X + xIncrement * i) + (curr.currPos_Y + yIncrement * i) * ROW] != EMPTY)
 			{
+				this->curr_msg_to_graphics = '6'; // ivalid move was made
 				r_val = false;
 				return r_val; // stop loop
 			}
@@ -463,16 +673,23 @@ bool board::move_bishop(std::string srcPoint, std::string dstPoint)
 		{//if white and dstPoint has black figure or the opposite
 			//delete the eatten piece
 			delete(this->board_figures[dst_x + dst_y * ROW]);
+			this->board_str[dst_x + dst_y * ROW] = EMPTY;
+		}
+		else
+		{
+			this->curr_msg_to_graphics = '3'; // both figures dst and src are from the same player
 		}
 
 	}
 	else
 	{
+		this->curr_msg_to_graphics = '6'; // ivalid move was made
 		r_val = false;
 	}
 
 	if (r_val)
 	{
+		this->curr_msg_to_graphics = '0'; // valid move was made
 		//move the figure
 		this->board_figures[dst_x + dst_y * ROW] = this->board_figures[src_x + src_y * ROW];
 		this->board_figures[src_x + src_y * ROW] = nullptr;
@@ -501,13 +718,23 @@ bool board::move_knight(std::string srcPoint, std::string dstPoint)
 
 	if ((abs(src_x - dst_x) == TWO_STEPS && abs(src_y - dst_y) == STEP) || (abs(src_x - dst_x) == STEP && abs(src_y - dst_y) == TWO_STEPS))
 	{
-
-		if (curr.isWhite() && islower(this->board_str[dst_x + dst_y * ROW]) ||
-			(!curr.isWhite() && !islower(this->board_str[dst_x + dst_y * ROW])))
-		{//if white and dstPoint has black figure or the opposite
-			//delete the eatten piece
-			delete(this->board_figures[dst_x + dst_y * ROW]);
+		if (this->board_str[dst_x + dst_y * ROW] != EMPTY)
+		{
+			if (curr.isWhite() && islower(this->board_str[dst_x + dst_y * ROW]) ||
+				(!curr.isWhite() && !islower(this->board_str[dst_x + dst_y * ROW])))
+			{//if white and dstPoint has black figure or the opposite
+				//delete the eatten piece
+				delete(this->board_figures[dst_x + dst_y * ROW]);
+				this->board_str[dst_x + dst_y * ROW] = EMPTY;
+			}
+			else
+			{
+				this->curr_msg_to_graphics = '3'; // both figures dst and src are from the same player
+				return false;
+			}
 		}
+
+		this->curr_msg_to_graphics = '0'; // valid move was made
 
 		//move the figure
 		this->board_figures[dst_x + dst_y * ROW] = this->board_figures[src_x + src_y * ROW];
@@ -526,6 +753,7 @@ bool board::move_knight(std::string srcPoint, std::string dstPoint)
 	}
 	else
 	{
+		this->curr_msg_to_graphics = '6'; // ivalid move was made
 		r_val = false;
 	}
 
@@ -554,8 +782,10 @@ bool board::move_queen(std::string srcPoint, std::string dstPoint)
 			{
 
 				if (this->board_str[dst_x + i * ROW] != EMPTY)
+				{
+					this->curr_msg_to_graphics = '6'; // ivalid move was made
 					return false;
-
+				}
 			}
 		}
 		else
@@ -563,26 +793,35 @@ bool board::move_queen(std::string srcPoint, std::string dstPoint)
 			{
 
 				xIncrement = (dst_x - src_x) / (abs(dst_x - src_x));
-				for (int i = src_y + xIncrement; i != dst_x; i += xIncrement)
+				for (int i = src_x + xIncrement; i != dst_x; i += xIncrement)
 				{
 					if (this->board_str[i + dst_y * ROW] != EMPTY)
+					{
+						this->curr_msg_to_graphics = '6'; // ivalid move was made
 						return false;
+					}
 				}
 			}
 			else
 				if (abs(src_x - dst_x) == abs(src_y - dst_y))
 				{
-					xIncrement = (dst_x - src_x) / (abs(dst_x - src_y));
+					xIncrement = (dst_x - src_x) / (abs(dst_x - src_x));
 					yIncrement = (dst_y - src_y) / (abs(dst_y - src_y));
 
-					for (int i = 1; i < abs(src_y - dst_x); i++)
+					for (int i = 1; i < abs(src_x - dst_x); i++)
 					{
-						if (this->board_str[src_x + xIncrement * i + dst_y * yIncrement * ROW] != EMPTY)
+						if (this->board_str[src_x + xIncrement * i + (src_y + yIncrement * i) * ROW] != EMPTY)
+						{
+							this->curr_msg_to_graphics = '6'; // ivalid move was made
 							return false;
+						}
 					}
 				}
 				else
+				{
+					this->curr_msg_to_graphics = '6'; // ivalid move was made
 					return false;
+				}
 	}
 
 
@@ -590,12 +829,24 @@ bool board::move_queen(std::string srcPoint, std::string dstPoint)
 	// set variables of pos to new point
 	if (!r_val)
 	{
-		if (curr.isWhite() && islower(this->board_str[dst_x + dst_y * ROW]) ||
-			(!curr.isWhite() && !islower(this->board_str[dst_x + dst_y * ROW])))
-		{//if white and dstPoint has black figure or the opposite
-			//delete the eatten piece
-			delete(this->board_figures[dst_x + dst_y * ROW]);
+		if (this->board_str[dst_x + dst_y * ROW] != EMPTY)
+		{
+			if (curr.isWhite() && islower(this->board_str[dst_x + dst_y * ROW]) ||
+				(!curr.isWhite() && !islower(this->board_str[dst_x + dst_y * ROW])))
+			{//if white and dstPoint has black figure or the opposite
+				//delete the eatten piece
+				delete(this->board_figures[dst_x + dst_y * ROW]);
+				this->board_str[dst_x + dst_y * ROW] = EMPTY;
+			}
+			else
+			{
+				this->curr_msg_to_graphics = '3'; // both figures dst and src are from the same player
+				return false;
+			}
 		}
+
+		this->curr_msg_to_graphics = '0'; // valid move was made
+
 		//move the figure
 		this->board_figures[dst_x + dst_y * ROW] = this->board_figures[src_x + src_y * ROW];
 		this->board_figures[src_x + src_y * ROW] = nullptr;

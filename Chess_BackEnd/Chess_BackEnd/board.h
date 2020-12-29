@@ -23,12 +23,16 @@ class board
 {
 	public:
 		std::string board_str;
-		Figure* board_figures[64];
+		Figure* board_figures[ROW*ROW];
+		std::string curr_msg_to_graphics;
+		bool is_turn_white;
 
 		board();
 		~board();
+		void switch_positions(std::string srcPoint, std::string dstPoint);
 		std::string get_board();
 		void set_board_figures();
+		void set_board_str();
 
 		bool is_chess(std::string figure_pos);
 

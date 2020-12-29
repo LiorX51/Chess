@@ -4,11 +4,15 @@
 #include <string>
 #include <iostream>
 
+#define ROW 8
+#define EMPTY '#'
+
 class Figure
 {
 
 public:
 
+	std::string board_str;
 	std::string name;
 	int currPos_Y;
 	int currPos_X;
