@@ -281,10 +281,31 @@ namespace chessGraphics
                     {
                         isCurPlWhite = !isCurPlWhite;
                         lblCurrentPlayer.Text = isCurPlWhite ? "White" : "Black";
-
+                         
                         matBoard[dstSquare.Row, dstSquare.Col].BackgroundImage = matBoard[srcSquare.Row, srcSquare.Col].BackgroundImage;
                         matBoard[srcSquare.Row, srcSquare.Col].BackgroundImage = null;
 
+                         /*
+                         Image point = matBoard[dstSquare.Row, dstSquare.Col].BackgroundImage;
+                         Image black = getImageBySign('p');
+                         Image white = getImageBySign('P');
+                         bool dd = EqualityComparer.Equals(matBoard[dstSquare.Row, dstSquare.Col].BackgroundImage, Properties.Resources.p_white);
+                         bool cc = EqualityComparer.Equals(matBoard[dstSquare.Row, dstSquare.Col].BackgroundImage, Properties.Resources.p_black);
+                         //bool dd = Equals(matBoard[dstSquare.Row, dstSquare.Col].BackgroundImage, Properties.Resources.p_white);
+                         //bool cc = Equals(matBoard[dstSquare.Row, dstSquare.Col].BackgroundImage, Properties.Resources.p_black);
+
+                         // if a black pawn got to the finish
+                         if (Equals(point, black) &&
+                            dstSquare.Row == BOARD_SIZE-1)
+                         {
+                             matBoard[dstSquare.Row, dstSquare.Col].BackgroundImage = getImageBySign('Q');
+                         }
+                         else if(dd &&
+                            dstSquare.Row == 0)
+                         {// if a black pawn got to the finish:
+                             matBoard[dstSquare.Row, dstSquare.Col].BackgroundImage = getImageBySign('q');
+                         }
+                         */
                         matBoard[srcSquare.Row, srcSquare.Col].FlatAppearance.BorderColor = Color.Blue;
                         matBoard[dstSquare.Row, dstSquare.Col].FlatAppearance.BorderColor = Color.Blue;
                     
