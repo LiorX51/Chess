@@ -1,11 +1,11 @@
 #include "Bishop.h"
 
-Bishop::Bishop(std::string name, std::string start_pos, bool is_white) : Figure(name, start_pos, is_white)
+Bishop::Bishop(const std::string name, const std::string start_pos, const bool is_white) : Figure(name, start_pos, is_white)
 {
 
 }
 
-bool Bishop::does_attack(std::string Point)
+bool Bishop::does_attack(const std::string Point)
 {
 	bool r_val = false;
 	int dst_x = get_tran_x(Point);

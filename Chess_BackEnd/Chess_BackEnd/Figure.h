@@ -19,18 +19,18 @@ public:
 	std::string currPos;
 	bool is_white;
 
-	Figure(std::string name, std::string start_pos, bool is_white);
+	Figure(const std::string name, const std::string start_pos, const bool is_white);
 	~Figure();
 	bool isWhite();
-	void setWhite(bool isWhite);
+	void setWhite(const bool isWhite);
 	std::string getName();
-	void set_pos(std::string pos);
+	void set_pos(const std::string pos);
 	void tran_strPos_to_X_Y();
-	void setX(int x);
-	void setY(int y);
-	static int get_tran_x(std::string dst_pos);
-	static int get_tran_y(std::string dst_pos);
-	virtual bool does_attack(std::string Point) = 0;
+	void setX(const int x);
+	void setY(const int y);
+	static int get_tran_x(const std::string dst_pos);
+	static int get_tran_y(const std::string dst_pos);
+	virtual bool does_attack(const std::string Point) = 0;
 private:
 	
 };

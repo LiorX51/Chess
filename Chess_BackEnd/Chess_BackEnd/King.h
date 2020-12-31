@@ -8,8 +8,8 @@
 class King : public Figure
 {
 	public:
-		King(std::string name, std::string start_pos, bool is_white);
+		King(const std::string name, const std::string start_pos, const bool is_white);
 
-		bool does_attack(std::string Point);
+		bool does_attack(const std::string Point);
 };
 #endif

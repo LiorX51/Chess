@@ -1,10 +1,10 @@
 #include "pawn.h"
 
-Pawn::Pawn(std::string name, std::string start_pos, bool is_white) : Figure(name, start_pos, is_white)
+Pawn::Pawn(const std::string name, const std::string start_pos, const bool is_white) : Figure(name, start_pos, is_white)
 {
 }
 
-bool Pawn::does_attack(std::string Point)
+bool Pawn::does_attack(const std::string Point)
 {
 	bool r_val = false;
 	int dst_x = get_tran_x(Point);

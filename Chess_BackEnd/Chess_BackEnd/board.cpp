@@ -24,7 +24,7 @@ board::~board()
 	delete[] board_figures;
 }
 
-void board::switch_positions(std::string srcPoint, std::string dstPoint)
+void board::switch_positions(const std::string srcPoint, const std::string dstPoint)
 {
 	int src_x = Figure::get_tran_x(srcPoint);
 	int src_y = Figure::get_tran_y(srcPoint);
@@ -140,7 +140,7 @@ void board::set_board_str()
 	}
 }
 
-bool board::is_chess(std::string figure_pos)
+bool board::is_chess(const std::string figure_pos)
 {
 	int black_index = 0;
 	int white_index = 0;
@@ -250,7 +250,7 @@ bool board::is_chess(std::string figure_pos)
 	return is_chess;
 }
 
-bool board::move_figure(std::string srcPoint, std::string dstPoint)
+bool board::move_figure(const std::string srcPoint, const std::string dstPoint)
 {
 	int src_x = Figure::get_tran_x(srcPoint);
 	int src_y = Figure::get_tran_y(srcPoint);
@@ -342,7 +342,7 @@ bool board::move_figure(std::string srcPoint, std::string dstPoint)
 	return r_val;
 }
 
-bool board::move_pawn(std::string srcPoint, std::string dstPoint)
+bool board::move_pawn(const std::string srcPoint, const std::string dstPoint)
 {
 	int src_x = Figure::get_tran_x(srcPoint);
 	int src_y = Figure::get_tran_y(srcPoint);
@@ -480,7 +480,7 @@ bool board::move_pawn(std::string srcPoint, std::string dstPoint)
 	return r_val;
 }
 
-bool board::move_king(std::string srcPoint, std::string dstPoint)
+bool board::move_king(const std::string srcPoint, const std::string dstPoint)
 {
 	int src_x = Figure::get_tran_x(srcPoint);
 	int src_y = Figure::get_tran_y(srcPoint);
@@ -575,7 +575,7 @@ bool board::move_king(std::string srcPoint, std::string dstPoint)
 	return r_val;
 }
 
-bool board::move_rook(std::string srcPoint, std::string dstPoint)
+bool board::move_rook(const std::string srcPoint, const std::string dstPoint)
 {
 	int src_x = Figure::get_tran_x(srcPoint);
 	int src_y = Figure::get_tran_y(srcPoint);
@@ -667,7 +667,7 @@ bool board::move_rook(std::string srcPoint, std::string dstPoint)
 	return r_val;
 }
 
-bool board::move_bishop(std::string srcPoint, std::string dstPoint)
+bool board::move_bishop(const std::string srcPoint, const std::string dstPoint)
 {
 	int src_x = Figure::get_tran_x(srcPoint);
 	int src_y = Figure::get_tran_y(srcPoint);
@@ -731,7 +731,7 @@ bool board::move_bishop(std::string srcPoint, std::string dstPoint)
 	return r_val;
 }
 
-bool board::move_knight(std::string srcPoint, std::string dstPoint)
+bool board::move_knight(const std::string srcPoint, const std::string dstPoint)
 {
 	int src_x = Figure::get_tran_x(srcPoint);
 	int src_y = Figure::get_tran_y(srcPoint);
@@ -785,7 +785,7 @@ bool board::move_knight(std::string srcPoint, std::string dstPoint)
 	return r_val;
 }
 
-bool board::move_queen(std::string srcPoint, std::string dstPoint)
+bool board::move_queen(const std::string srcPoint, const std::string dstPoint)
 {
 	int src_x = Figure::get_tran_x(srcPoint);
 	int src_y = Figure::get_tran_y(srcPoint);

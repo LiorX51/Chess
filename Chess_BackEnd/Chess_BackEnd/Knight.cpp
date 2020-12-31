@@ -1,10 +1,10 @@
 #include "Knight.h"
 
-Knight::Knight(std::string name, std::string start_pos, bool is_white) : Figure(name, start_pos, is_white)
+Knight::Knight(const std::string name, const std::string start_pos, const bool is_white) : Figure(name, start_pos, is_white)
 {
 }
 
-bool Knight::does_attack(std::string Point)
+bool Knight::does_attack(const std::string Point)
 {
 	bool r_val = false;
 	int dst_x = get_tran_x(Point);

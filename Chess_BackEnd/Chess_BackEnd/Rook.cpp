@@ -1,10 +1,10 @@
 #include "Rook.h"
 
-Rook::Rook(std::string name, std::string start_pos, bool is_white) : Figure(name, start_pos, is_white)
+Rook::Rook(const std::string name, const std::string start_pos, const bool is_white) : Figure(name, start_pos, is_white)
 {
 }
 
-bool Rook::does_attack(std::string Point)
+bool Rook::does_attack(const std::string Point)
 {
 	bool r_val = true;
 	int dst_x = get_tran_x(Point);
