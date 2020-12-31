@@ -433,6 +433,31 @@ bool board::move_pawn(std::string srcPoint, std::string dstPoint)
 	if (r_val)
 	{
 		this->curr_msg_to_graphics = '0'; // valid move was made
+
+		// if pawn gets to the last line he turns into a queen.
+		if (dst_y == ROW || dst_y == 0)
+		{
+			// place the queen by the pawn's color
+			if (this->board_figures[src_x + src_y * ROW]->isWhite())
+			{
+				this->board_str[dst_x + dst_y * ROW] = 'Q'; // white queen
+			}
+			else
+			{
+				this->board_str[dst_x + dst_y * ROW] = 'q'; // black queen
+			}
+
+			// delete src point
+			delete(this->board_figures[src_x + src_y * ROW]);
+			this->board_figures[src_x + src_y * ROW] = nullptr;
+			this->board_str[src_x + src_y * ROW] = EMPTY;
+
+			// create new queen in dstPoint
+			this->board_figures[dst_x + dst_y * ROW] = new Queen(std::string(1, this->board_str[dst_x + dst_y * ROW]), dstPoint, !islower(this->board_str[dst_x + dst_y * ROW]));
+
+			return true;
+		}
+
 		//move the figure
 		this->board_figures[dst_x + dst_y * ROW] = this->board_figures[src_x + src_y * ROW];
 		this->board_figures[src_x + src_y * ROW] = nullptr;
