@@ -1,0 +1,8 @@
+This chess program consists of two main programs:
+
+One for the FrontEnd where the user is able to see and interact.
+The second one is the Backend where the user has no accses to and it contronls all the back stuff.
+
+The FrontEnd and the Backend connect when they both open at the same time.
+
+For the program to work the FrontEnd must be reconfuigerd and changed by the worker.
